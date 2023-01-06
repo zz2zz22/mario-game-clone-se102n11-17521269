@@ -249,18 +249,37 @@ void CPlayScene::Update(DWORD dt)
 
 	// skip the rest if scene was already unloaded (Mario::Update might trigger PlayScene::Unload)
 	if (player == NULL) return; 
+	
 
 	// Update camera to follow mario
 	float cx, cy;
+	float cl, ct, cr, cb;
 	player->GetPosition(cx, cy);
+	player->GetBoundingBox(cl, ct, cr, cb);
+	CGame* game = CGame::GetInstance();
 
-	CGame *game = CGame::GetInstance();
+	if (cx < 0.f)
+	{
+		//left collision
+		player->SetPosition(0.f, cy);
+	}
+	if (cy < 0.f)
+	{
+		//top collision
+		player->SetPosition(cx, 0.f);
+	}
+	if (cy + (cb - ct) > 480)
+	{
+		//player state ?
+		player->SetState(-10);
+		
+	}
 	cx -= game->GetBackBufferWidth() / 2;
 	cy -= game->GetBackBufferHeight() / 2;
 
 	if (cx < 0) cx = 0;
-
-	CGame::GetInstance()->SetCamPos(cx, 0.0f /*cy*/);
+	if (player->GetState() != -10)
+		CGame::GetInstance()->SetCamPos(cx, cy/2/*cy*/);
 
 	PurgeDeletedObjects();
 }
