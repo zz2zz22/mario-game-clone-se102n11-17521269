@@ -9,6 +9,7 @@
 #include "Portal.h"
 #include "Coin.h"
 #include "Platform.h"
+#include "Game.h"
 
 #include "SampleKeyEventHandler.h"
 
@@ -135,6 +136,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 			cell_width, cell_height, length,
 			sprite_begin, sprite_middle, sprite_end
 		);
+		ground = (CPlatform*)obj;
 
 		break;
 	}
@@ -254,8 +256,12 @@ void CPlayScene::Update(DWORD dt)
 	// Update camera to follow mario
 	float cx, cy;
 	float cl, ct, cr, cb;
+	float gl, gt, gr, gb;
+
 	player->GetPosition(cx, cy);
 	player->GetBoundingBox(cl, ct, cr, cb);
+	ground->GetBoundingBox(gl, gt, gr, gb);
+	
 	CGame* game = CGame::GetInstance();
 
 	if (cx < 0.f)
@@ -268,19 +274,28 @@ void CPlayScene::Update(DWORD dt)
 		//top collision
 		player->SetPosition(cx, 0.f);
 	}
-	if (cy + (cb - ct) > 480)
+	if (cx + (cr - cl) > 2816)
 	{
-		//player state ?
-		player->SetState(-10);
-		
+		player->SetPosition(2816 - (cr - cl), cy);
 	}
-	cx -= game->GetBackBufferWidth() / 2;
-	cy -= game->GetBackBufferHeight() / 2;
+	if (cy + (cb - ct) > gb + (cb - ct))
+	{
+		//player state / restart level
+		player->SetState(-10);
+	}
+	const RECTF REGION_OFFSET(0.1f, 0.9f, 1.2f, 1.2f);
 
-	if (cx < 0) cx = 0;
+	if (cx < 0) 
+		cx = 0;
+	/*if (cy > 240)
+		cy -= game->GetBackBufferHeight() / 2;*/
+
+	cx -= game->GetBackBufferWidth()/2;
+	cy -= game->GetBackBufferHeight()/2;
+
 	if (player->GetState() != -10)
-		CGame::GetInstance()->SetCamPos(cx, cy/2/*cy*/);
-
+		CGame::GetInstance()->SetCamPos(cx, cy);
+	
 	PurgeDeletedObjects();
 }
 

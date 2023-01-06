@@ -15,5 +15,10 @@ using namespace std;
 
 vector<string> split(string line, string delimeter = "\t");
 wstring ToWSTR(string st);
+typedef struct RectFloat { //init a frame rectangle bound size
+	float left, top, right, bottom;
 
+	RectFloat() : left(0), top(0), right(0), bottom(0) {}
+	RectFloat(float l, float t, float r, float b) : left(l), top(t), right(r), bottom(b) {}
+} RECTF;
 LPCWSTR ToLPCWSTR(string st);
